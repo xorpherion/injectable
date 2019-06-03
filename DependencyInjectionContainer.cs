@@ -13,8 +13,9 @@ namespace Bornium.Injectable
 
         public Injector Injector { get; } = new Injector();
 
-        public DependencyInjectionContainer(Assembly[] assemblies)
+        public DependencyInjectionContainer(Assembly[] assemblies, params CompletedBuilder[] initialLoad)
         {
+            blueprints.AddRange(initialLoad);
             FindBlueprints(assemblies);
             TryToConstructFromBlueprints();
         }
