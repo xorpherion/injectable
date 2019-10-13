@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -60,13 +61,19 @@ namespace Bornium.Injectable
                             foreach (var b in blueprints)
                             {
                                 b.MissingDependencies.Remove(type);
-                                b.MissingDependencies.Remove(TypeAsCollection(type));
+                                if (!ThereAreStillMissingInstancesToConstructForCollectionOf(type))
+                                    b.MissingDependencies.Remove(TypeAsCollection(type));
                                 if (blueprint.GetAttribute().Name != null)
                                     b.MissingNamedDependencies.Remove(blueprint.GetAttribute().Name);
                             }
                     }
                 }
             }
+        }
+
+        private bool ThereAreStillMissingInstancesToConstructForCollectionOf(Type type)
+        {
+            return blueprints.Select(b1 => GetAllImplementingTypesForType(b1.Constructable)).SelectMany(l => l).Where(t => t != typeof(Object)).Select(t => t.FullName).ToList().Contains(type.FullName);
         }
 
         private Type[] ConstructBlueprintAndGetTypesOfInstance(ConstructableType blueprint)
